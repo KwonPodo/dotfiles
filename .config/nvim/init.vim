@@ -1,4 +1,4 @@
-" =============================================================
+"  =============================================================
 " =              Vim-Plug Configuration                       =
 " =============================================================
 " Plugins will be downloaded under the specified directory.
@@ -24,11 +24,12 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
 " Edit Tools
-Plug 'ap/vim-css-color'
 Plug 'majutsushi/tagbar'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'tpope/vim-commentary'
 
 " Pretty Looks
+Plug 'ap/vim-css-color'
 Plug 'sonph/onehalf', { 'rtp': 'vim' }
 Plug 'tomasr/molokai'
 Plug 'vim-airline/vim-airline'
@@ -40,6 +41,26 @@ call plug#end()
 " =============================================================
 " =              init.vim Configuration                       =
 " =============================================================
+function! CloseHiddenBuffers()
+    " >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    " close any buffers hidden
+    " <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    let open_buffers = []
+
+    for i in range(tabpagenr('$'))
+        call extend(open_buffers, tabpagebuflist(i + 1))
+    endfor
+
+    for num in range(1, bufnr("$") + 1)
+        if buflisted(num) && index(open_buffers, num) == -1
+            exec "bdelete ".num
+        endif
+    endfor
+endfunction
+
+au BufEnter * call CloseHiddenBuffers()
+
+autocmd BufNewFile,BufRead * setlocal formatoptions-=cro
 
 set nocompatible            " disable compatibility to old-time vi
 set relativenumber number   " set relative number and absolute number
@@ -93,7 +114,8 @@ nmap [b :bprevious<Return>
 nmap ]b :bnext<Return>
 nmap [t :tabprevious<Return>
 nmap ]t :tabNext<Return>
-nmap <C-S-w> :tabclose<Return>
+"nmap db :bdelete<Return>
+"nmap dt :tabclose<Return>
 nmap <C-t> :Files<Return>
 nmap <C-b> :Buffers<Return>
 
@@ -105,7 +127,7 @@ nnoremap <C-n> :NERDTree<CR>
 
 
 " vim-tagbar key-bindings
-"nmap <C-m> :TagbarToggle<CR>
+nmap <F8> :TagbarToggle<CR>
 
 " Live-Server
 nmap gl :!live-server .<CR>
